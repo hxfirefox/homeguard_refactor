@@ -1,6 +1,7 @@
 package afterrefactor;
 
 import afterrefactor.sensor.Sensor;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -20,7 +21,7 @@ public class CentralUnit
 	// members to help with sensor tests
 	private Map<String, SensorTestStatus> sensorTestStatusMap = Maps.newHashMap();
 	private boolean runningSensorTest;
-	private SensorTestStatus sensorTestStatus;
+	private SensorTestStatus finalSensorTestStatus;
 
 	public boolean isArmed()
 	{
@@ -138,39 +139,51 @@ public class CentralUnit
 
 	public void runSensorTest()
 	{
-		setRunningSensorTestFlag(true);
-		sensorTestStatus = PENDING;
+        changeRunningFlagAndSensorTestStatus(true, PENDING);
 
 		// initialize the status map
-		for (Sensor sensor : sensors) {
-			sensorTestStatusMap.put(sensor.getId(), sensorTestStatus);
-		}
-	}
+        initAllSensorsTestStatus();
+    }
 
-	private void setRunningSensorTestFlag(boolean flag) {
+    // used during sensor test
+    public void terminateSensorTest()
+    {
+        changeRunningFlagAndSensorTestStatus(false, checkSensorTestStatus());
+    }
+
+    private void changeRunningFlagAndSensorTestStatus(boolean runningFlag, SensorTestStatus testStatus) {
+        setRunningSensorTestFlag(runningFlag);
+        finalSensorTestStatus = testStatus;
+    }
+
+    private void initAllSensorsTestStatus() {
+        for (Sensor sensor : sensors) {
+            sensorTestStatusMap.put(sensor.getId(), PENDING);
+        }
+    }
+
+    private void setRunningSensorTestFlag(boolean flag) {
 		runningSensorTest = flag;
 	}
 
-	// used during sensor test
-	public void terminateSensorTest()
-	{
-		setRunningSensorTestFlag(false);
-
-		// look at individual sensor status to determine the overall test status
-		sensorTestStatus = PASS;
-		for (Object o : sensorTestStatusMap.values()) {
-			String status = (String) o;
-			if (status.equals(PENDING)) {
-				sensorTestStatus = FAIL;
-				break;
-			}
-		}
+	@VisibleForTesting
+	protected boolean getRunningSensorTestFlag() {
+		return runningSensorTest;
 	}
 
-	// used during sensor test
+    private SensorTestStatus checkSensorTestStatus() {
+        for (SensorTestStatus status : sensorTestStatusMap.values()) {
+            if (status.equals(PENDING)) {
+                return FAIL;
+            }
+        }
+        return PASS;
+    }
+
+    // used during sensor test
 	public SensorTestStatus getSesnsorTestStatus()
 	{
-		return sensorTestStatus;
+		return finalSensorTestStatus;
 	}
 
 	// used during sensor test
