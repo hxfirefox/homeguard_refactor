@@ -4,7 +4,7 @@ public abstract class Sensor {
     private String id;
     private String location;
     private SensorType type;
-    private boolean tripped = false;
+    private boolean tripped;
 
     public Sensor(String id, String location, SensorType type) {
         this.id = id;
