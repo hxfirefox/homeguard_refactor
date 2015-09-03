@@ -2,7 +2,11 @@ package afterrefactor;
 
 public class MockAudibleAlarm implements AudibleAlarm
 {
-	public boolean isOn = false;
+	private boolean isOn;
+
+	public boolean getIsOn() {
+		return isOn;
+	}
 
 	public void sound()
 	{

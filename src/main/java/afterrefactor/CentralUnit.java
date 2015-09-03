@@ -11,17 +11,25 @@ import static afterrefactor.SensorTestStatus.*;
 
 public class CentralUnit
 {
-
 	private boolean armed = false;
 	private String securityCode;
 	private List<Sensor> sensors = Lists.newLinkedList();
-	private HomeGuardView view = new TextView();
-	private AudibleAlarm audibleAlarm = new TextAudibleAlarm();
+	private HomeGuardView view;
+	private AudibleAlarm audibleAlarm;
 
 	// members to help with sensor tests
 	private Map<String, SensorTestStatus> sensorTestStatusMap = Maps.newHashMap();
 	private boolean runningSensorTest;
 	private SensorTestStatus finalSensorTestStatus;
+
+    public CentralUnit(HomeGuardView view, AudibleAlarm audibleAlarm) {
+        this.view = view;
+        this.audibleAlarm = audibleAlarm;
+    }
+
+    public CentralUnit() {
+        this(new TextView(), new TextAudibleAlarm());
+    }
 
 	public boolean isArmed()
 	{
