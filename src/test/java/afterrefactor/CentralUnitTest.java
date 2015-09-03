@@ -15,13 +15,15 @@ import static org.mockito.Mockito.when;
  */
 public class CentralUnitTest {
     private CentralUnit centralUnit;
+    private MockHomeGuardView mockHomeGuardView = new MockHomeGuardView();
+    private MockAudibleAlarm mockAudibleAlarm = new MockAudibleAlarm();
     private final Sensor sensor1 = mock(Sensor.class);
     private final Sensor sensor2 = mock(Sensor.class);
     private final Sensor sensor3 = mock(Sensor.class);
 
     @Before
     public void setUp() throws Exception {
-        centralUnit = new CentralUnit();
+        centralUnit = new CentralUnit(mockHomeGuardView, mockAudibleAlarm);
 
         centralUnit.registerSensor(sensor1);
         centralUnit.registerSensor(sensor2);
@@ -85,5 +87,14 @@ public class CentralUnitTest {
         centralUnit.terminateSensorTest();
         // then
         assertThat(centralUnit.getSesnsorTestStatus(), is(PASS));
+    }
+
+    @Test
+    public void should_view_do_nothing_when_sensor_test_not_running() throws Exception {
+        // given
+        // when
+        centralUnit.parseRadioBroadcast("1,TRIPPED");
+        // then
+        assertThat(mockHomeGuardView.getHasShowMessage(), is(false));
     }
 }
