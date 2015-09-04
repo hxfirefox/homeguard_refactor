@@ -115,7 +115,7 @@ public class CentralUnitTest {
         // when
         when(sensor1.getId()).thenReturn("1");
         centralUnit.runSensorTest();
-        centralUnit.setArmed(true);
+        centralUnit.getAlarmManager().setArmed(true);
         centralUnit.parseRadioBroadcast("1,TRIPPED");
         // then
         assertThat(mockAudibleAlarm.getIsOn(), is(true));

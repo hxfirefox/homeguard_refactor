@@ -15,20 +15,20 @@ import static afterrefactor.SensorTestStatus.*;
 
 public class CentralUnit {
     private static final String SENSOR_STATUS_TRIPPED = "TRIPPED";
-    private boolean armed;
     private String securityCode;
     private List<Sensor> sensors = Lists.newLinkedList();
     private final HomeGuardView view;
-    private final AudibleAlarm audibleAlarm;
 
     // members to help with sensor tests
     private Map<String, SensorTestStatus> sensorTestStatusMap = Maps.newHashMap();
     private boolean runningSensorTest;
     private SensorTestStatus finalSensorTestStatus;
 
+    private final AlarmManager alarmManager;
+
     public CentralUnit(HomeGuardView view, AudibleAlarm audibleAlarm) {
         this.view = view;
-        this.audibleAlarm = audibleAlarm;
+        this.alarmManager = new AlarmManager(audibleAlarm);
     }
 
     public CentralUnit() {
@@ -67,9 +67,7 @@ public class CentralUnit {
         }
 
         // sound the alarm if armed
-        if (isArmed()) {
-            audibleAlarm.sound();
-        }
+        alarmManager.enableAlarm();
     }
 
     public void runSensorTest() {
@@ -84,19 +82,18 @@ public class CentralUnit {
         changeRunningFlagAndSensorTestStatus(false, checkSensorTestStatus());
     }
 
-    public void setArmed(boolean armed) {
-        this.armed = armed;
-    }
-
     public void setSecurityCode(String code) {
         securityCode = code;
     }
 
     public void turnOffAlarm(String code) {
         if (isValidCode(code)) {
-            setArmed(false);
-            audibleAlarm.silence();
+            alarmManager.disableAlarm();
         }
+    }
+
+    public AlarmManager getAlarmManager() {
+        return alarmManager;
     }
 
     @VisibleForTesting
@@ -112,10 +109,6 @@ public class CentralUnit {
     @VisibleForTesting
     protected boolean isSensorTestRunning() {
         return runningSensorTest;
-    }
-
-    private boolean isArmed() {
-        return armed;
     }
 
     private boolean isValidCode(String code) {
