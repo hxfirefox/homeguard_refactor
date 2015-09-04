@@ -1,6 +1,10 @@
 package afterrefactor;
 
+import afterrefactor.alarm.AudibleAlarm;
 import afterrefactor.sensor.Sensor;
+import afterrefactor.view.HomeGuardView;
+import afterrefactor.alarm.TextAudibleAlarm;
+import afterrefactor.view.TextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

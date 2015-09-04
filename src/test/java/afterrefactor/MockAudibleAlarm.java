@@ -1,5 +1,7 @@
 package afterrefactor;
 
+import afterrefactor.alarm.AudibleAlarm;
+
 public class MockAudibleAlarm implements AudibleAlarm
 {
 	private boolean isOn;

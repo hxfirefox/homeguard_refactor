@@ -1,4 +1,4 @@
-package afterrefactor;
+package afterrefactor.alarm;
 
 public interface AudibleAlarm
 {

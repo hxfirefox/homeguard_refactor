@@ -1,4 +1,4 @@
-package afterrefactor;
+package afterrefactor.view;
 
 public class TextView implements HomeGuardView
 {

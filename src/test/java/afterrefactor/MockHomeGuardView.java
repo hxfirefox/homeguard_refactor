@@ -1,5 +1,7 @@
 package afterrefactor;
 
+import afterrefactor.view.HomeGuardView;
+
 /**
  * Created by »ÆÏè on 15-9-3.
  */
