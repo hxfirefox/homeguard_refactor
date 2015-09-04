@@ -39,7 +39,7 @@ public class CentralUnitTest {
         when(sensor3.getId()).thenReturn("3");
         centralUnit.runSensorTest();
         // then
-        assertThat(centralUnit.getRunningSensorTestFlag(), is(true));
+        assertThat(centralUnit.isSensorTestRunning(), is(true));
         assertThat(centralUnit.getSesnsorTestStatus().equals(PENDING), is(true));
         assertThat(centralUnit.getSensorTestStatusMap().get("1").equals(PENDING), is(true));
         assertThat(centralUnit.getSensorTestStatusMap().get("2").equals(PENDING), is(true));
@@ -57,7 +57,7 @@ public class CentralUnitTest {
         centralUnit.runSensorTest();
         centralUnit.terminateSensorTest();
         // then
-        assertThat(centralUnit.getRunningSensorTestFlag(), is(false));
+        assertThat(centralUnit.isSensorTestRunning(), is(false));
     }
 
     @Test
@@ -96,5 +96,39 @@ public class CentralUnitTest {
         centralUnit.parseRadioBroadcast("1,TRIPPED");
         // then
         assertThat(mockHomeGuardView.getHasShowMessage(), is(false));
+    }
+
+    @Test
+    public void should_view_show_message_when_sensor_test_running() throws Exception {
+        // given
+        // when
+        when(sensor1.getId()).thenReturn("1");
+        centralUnit.runSensorTest();
+        centralUnit.parseRadioBroadcast("1,TRIPPED");
+        // then
+        assertThat(mockHomeGuardView.getHasShowMessage(), is(true));
+    }
+
+    @Test
+    public void should_alarm_on_when_enable_alarm() throws Exception {
+        // given
+        // when
+        when(sensor1.getId()).thenReturn("1");
+        centralUnit.runSensorTest();
+        centralUnit.arm();
+        centralUnit.parseRadioBroadcast("1,TRIPPED");
+        // then
+        assertThat(mockAudibleAlarm.getIsOn(), is(true));
+    }
+
+    @Test
+    public void should_alarm_off_when_disable_alarm() throws Exception {
+        // given
+        // when
+        when(sensor1.getId()).thenReturn("1");
+        centralUnit.runSensorTest();
+        centralUnit.parseRadioBroadcast("1,TRIPPED");
+        // then
+        assertThat(mockAudibleAlarm.getIsOn(), is(false));
     }
 }

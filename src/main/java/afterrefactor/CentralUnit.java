@@ -10,6 +10,7 @@ import java.util.*;
 import static afterrefactor.SensorTestStatus.*;
 
 public class CentralUnit {
+    private static final String SENSOR_STATUS_TRIPPED = "TRIPPED";
     private boolean armed = false;
     private String securityCode;
     private List<Sensor> sensors = Lists.newLinkedList();
@@ -67,7 +68,7 @@ public class CentralUnit {
 
     public void parseRadioBroadcast(String packet) {
         // check if a sensor test is running and adjust status
-        if (!runningSensorTest) {
+        if (!isSensorTestRunning()) {
             return;
         }
 
@@ -86,15 +87,16 @@ public class CentralUnit {
         //get the message from the sensor and display it
         view.showMessage(sensor.getSensorMessage());
 
+        // check to see if test is complete
+        //terminate test if complete
+        if (isSensorTestDone()) {
+            terminateSensorTest();
+        }
+
         // sound the alarm if armed
         if (isArmed()) {
             audibleAlarm.sound();
         }
-
-        // check to see if test is complete
-        //terminate test if complete
-        if (isSensorTestDone())
-            terminateSensorTest();
     }
 
     private void passSensorTest(String id, String status) {
@@ -113,11 +115,14 @@ public class CentralUnit {
     }
 
     private void tripOrResetSensor(String status, Sensor sensor) {
-        if (sensor != null) {
-            if ("TRIPPED".equals(status))
-                sensor.trip();
-            else
-                sensor.reset();
+        if (sensor == null) {
+            return;
+        }
+        if (SENSOR_STATUS_TRIPPED.equals(status)) {
+            sensor.trip();
+        }
+        else {
+            sensor.reset();
         }
     }
 
@@ -158,7 +163,7 @@ public class CentralUnit {
     }
 
     @VisibleForTesting
-    protected boolean getRunningSensorTestFlag() {
+    protected boolean isSensorTestRunning() {
         return runningSensorTest;
     }
 
