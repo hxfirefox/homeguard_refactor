@@ -11,7 +11,7 @@ import static afterrefactor.SensorTestStatus.*;
 
 public class CentralUnit {
     private static final String SENSOR_STATUS_TRIPPED = "TRIPPED";
-    private boolean armed = false;
+    private boolean armed;
     private String securityCode;
     private List<Sensor> sensors = Lists.newLinkedList();
     private final HomeGuardView view;
@@ -29,37 +29,6 @@ public class CentralUnit {
 
     public CentralUnit() {
         this(new TextView(), new TextAudibleAlarm());
-    }
-
-    public boolean isArmed() {
-        return armed;
-    }
-
-    public void arm() {
-        armed = true;
-    }
-
-    public void setSecurityCode(String code) {
-        securityCode = code;
-    }
-
-    public boolean isValidCode(String code) {
-        return securityCode.equals(code);
-    }
-
-    public void enterCode(String code) {
-        if (isValidCode(code)) {
-            armed = false;
-            audibleAlarm.silence();
-        }
-    }
-
-    public boolean audibleAlarmIsOn() {
-        return false;
-    }
-
-    public List getSensors() {
-        return sensors;
     }
 
     public void registerSensor(Sensor sensor) {
@@ -99,6 +68,56 @@ public class CentralUnit {
         }
     }
 
+    public void runSensorTest() {
+        changeRunningFlagAndSensorTestStatus(true, PENDING);
+
+        // initialize the status map
+        initAllSensorsTestStatus();
+    }
+
+    // used during sensor test
+    public void terminateSensorTest() {
+        changeRunningFlagAndSensorTestStatus(false, checkSensorTestStatus());
+    }
+
+    public void setArmed(boolean armed) {
+        this.armed = armed;
+    }
+
+    public void setSecurityCode(String code) {
+        securityCode = code;
+    }
+
+    public void turnOffAlarm(String code) {
+        if (isValidCode(code)) {
+            setArmed(false);
+            audibleAlarm.silence();
+        }
+    }
+
+    @VisibleForTesting
+    protected SensorTestStatus getSesnsorTestStatus() {
+        return finalSensorTestStatus;
+    }
+
+    @VisibleForTesting
+    protected Map getSensorTestStatusMap() {
+        return sensorTestStatusMap;
+    }
+
+    @VisibleForTesting
+    protected boolean isSensorTestRunning() {
+        return runningSensorTest;
+    }
+
+    private boolean isArmed() {
+        return armed;
+    }
+
+    private boolean isValidCode(String code) {
+        return securityCode.equals(code);
+    }
+
     private void passSensorTest(String id, String status) {
         if ("TRIPPED".equals(status)) {
             sensorTestStatusMap.put(id, PASS);
@@ -135,18 +154,6 @@ public class CentralUnit {
         return null;
     }
 
-    public void runSensorTest() {
-        changeRunningFlagAndSensorTestStatus(true, PENDING);
-
-        // initialize the status map
-        initAllSensorsTestStatus();
-    }
-
-    // used during sensor test
-    public void terminateSensorTest() {
-        changeRunningFlagAndSensorTestStatus(false, checkSensorTestStatus());
-    }
-
     private void changeRunningFlagAndSensorTestStatus(boolean runningFlag, SensorTestStatus testStatus) {
         setRunningSensorTestFlag(runningFlag);
         finalSensorTestStatus = testStatus;
@@ -162,11 +169,6 @@ public class CentralUnit {
         runningSensorTest = flag;
     }
 
-    @VisibleForTesting
-    protected boolean isSensorTestRunning() {
-        return runningSensorTest;
-    }
-
     private SensorTestStatus checkSensorTestStatus() {
         for (SensorTestStatus status : sensorTestStatusMap.values()) {
             if (status.equals(PENDING)) {
@@ -174,15 +176,5 @@ public class CentralUnit {
             }
         }
         return PASS;
-    }
-
-    // used during sensor test
-    public SensorTestStatus getSesnsorTestStatus() {
-        return finalSensorTestStatus;
-    }
-
-    // used during sensor test
-    public Map getSensorTestStatusMap() {
-        return sensorTestStatusMap;
     }
 }

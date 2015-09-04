@@ -115,7 +115,7 @@ public class CentralUnitTest {
         // when
         when(sensor1.getId()).thenReturn("1");
         centralUnit.runSensorTest();
-        centralUnit.arm();
+        centralUnit.setArmed(true);
         centralUnit.parseRadioBroadcast("1,TRIPPED");
         // then
         assertThat(mockAudibleAlarm.getIsOn(), is(true));
@@ -130,5 +130,27 @@ public class CentralUnitTest {
         centralUnit.parseRadioBroadcast("1,TRIPPED");
         // then
         assertThat(mockAudibleAlarm.getIsOn(), is(false));
+    }
+
+    @Test
+    public void should_turn_off_alarm_when_enter_valid_security_code() throws Exception {
+        // given
+        // when
+        mockAudibleAlarm.sound();
+        centralUnit.setSecurityCode("123");
+        centralUnit.turnOffAlarm("123");
+        // then
+        assertThat(mockAudibleAlarm.getIsOn(), is(false));
+    }
+
+    @Test
+    public void should_alarm_still_on_when_enter_invalid_security_code() throws Exception {
+        // given
+        // when
+        mockAudibleAlarm.sound();
+        centralUnit.setSecurityCode("123");
+        centralUnit.turnOffAlarm("321");
+        // then
+        assertThat(mockAudibleAlarm.getIsOn(), is(true));
     }
 }
